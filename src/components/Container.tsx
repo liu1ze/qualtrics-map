@@ -22,6 +22,9 @@ type Props = {
       },
     ];
     defaultView?: View;
+    
+    // 新增回调: 地图加载完成后把 Map 实例传出去
+    onMapReady?: (map: mapboxgl.Map) => void
   };
 };
 
@@ -45,7 +48,26 @@ export const Container: React.FC<Props> = (props) => {
     }
     return true;
   };
+  useEffect(() => {
+    if (!state.map) return; // 如果还没拿到地图对象，就直接返回
 
+    // 只需要注册一次 'load'，避免重复
+    const handleLoad = () => {
+      // 地图加载完成后，如果外部提供了 onMapReady 回调，就调用
+      if (props.options?.onMapReady) {
+        props.options.onMapReady(state.map!);
+      }
+    };
+
+    // 如果地图还没触发过 'load'，就监听一下
+    state.map.on('load', handleLoad);
+
+    // 清理函数，组件卸载或 map 对象变动时，移除监听
+    return () => {
+      state.map.off('load', handleLoad);
+    };
+  }, [state.map]);
+  
   useEffect(() => {
     const geocoderService = mbxGeocoder({
       accessToken: props.accessToken,

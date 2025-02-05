@@ -24,17 +24,18 @@ export const Map: React.FC<Props> = (props: Props) => {
       accessToken: props.accessToken,
     });
     
+
     newMap.on('style.load', () => {
-      // This will remove all layers of type "symbol", which typically includes text labels and icons
-      const currentStyle = newMap.getStyle();
-      if (currentStyle && currentStyle.layers) {
-        currentStyle.layers.forEach((layer) => {
+      const styleObj = newMap.getStyle();
+      if (styleObj?.layers) {
+        styleObj.layers.forEach((layer) => {
           if (layer.type === 'symbol') {
             newMap.removeLayer(layer.id);
           }
         });
       }
     });
+    
 
     newMap.on('click', (event: any) => {
       event.target.easeTo({
