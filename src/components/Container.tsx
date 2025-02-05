@@ -64,10 +64,10 @@ export const Container: React.FC<Props> = (props) => {
 
     // 清理函数，组件卸载或 map 对象变动时，移除监听
     return () => {
-      state.map.off('load', handleLoad);
+      state.map?.off('load', handleLoad);
     };
   }, [state.map]);
-  
+
   useEffect(() => {
     const geocoderService = mbxGeocoder({
       accessToken: props.accessToken,
