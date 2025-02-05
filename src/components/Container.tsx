@@ -22,7 +22,7 @@ type Props = {
       },
     ];
     defaultView?: View;
-    
+  
     // 新增回调: 地图加载完成后把 Map 实例传出去
     onMapReady?: (map: mapboxgl.Map) => void
   };
@@ -49,10 +49,14 @@ export const Container: React.FC<Props> = (props) => {
     return true;
   };
   useEffect(() => {
-    if (!state.map) return; // 如果还没拿到地图对象，就直接返回
-
+    if (!state.map) {
+      console.log('Container sees no map yet, skip attaching load event');
+      return; // 如果还没拿到地图对象，就直接返回
+    }
+    console.log('Container sees a valid map, attach load event');
     // 只需要注册一次 'load'，避免重复
     const handleLoad = () => {
+      console.log('Container detect map load event...');
       // 地图加载完成后，如果外部提供了 onMapReady 回调，就调用
       if (props.options?.onMapReady) {
         props.options.onMapReady(state.map!);

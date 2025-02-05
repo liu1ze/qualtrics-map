@@ -8,6 +8,8 @@ import { useStandbyIndex } from '../uses/useStandbyIndex';
 
 type Props = {
   accessToken: string;
+  // 如果需要外部知道地图什么时候加载完，可以加一个回调
+  onMapReady?: (map: mapboxgl.Map) => void;
 };
 
 export const Map: React.FC<Props> = (props: Props) => {
@@ -20,23 +22,27 @@ export const Map: React.FC<Props> = (props: Props) => {
     if (!mapContainer.current || !props.accessToken) return;
     const newMap = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/liu1ze/cm6qaryp300zk01sag01c49b4',
+      style: 'mapbox://styles/mapbox/streets-v12',
       accessToken: props.accessToken,
     });
-    
+// 在地图上监听 'load' 事件，这样可以在地图真的渲染出来后执行逻辑
+newMap.on('load', () => {
+  console.log('Map fully loaded in <Map> component');
 
-    newMap.on('style.load', () => {
-      const styleObj = newMap.getStyle();
-      if (styleObj?.layers) {
-        styleObj.layers.forEach((layer) => {
-          if (layer.type === 'symbol') {
-            newMap.removeLayer(layer.id);
-          }
-        });
-      }
-    });
-    
+  // 这里可以移除标签层，也可以换样式，或者调用回调
+  // 示例：移除几个常见的标签图层
+  if (newMap.getLayer('country-label')) {
+    newMap.removeLayer('country-label');
+  }
+  if (newMap.getLayer('settlement-label')) {
+    newMap.removeLayer('settlement-label');
+  }
 
+  // 如果想要告诉外部“地图已经准备好了”，就调用回调
+  if (props.onMapReady) {
+    props.onMapReady(newMap);
+  }
+});
     newMap.on('click', (event: any) => {
       event.target.easeTo({
         center: [event.lngLat.lng, event.lngLat.lat],
@@ -72,7 +78,7 @@ export const Map: React.FC<Props> = (props: Props) => {
       type: 'INITIALIZE_MAP',
       map: newMap,
     });
-  }, [mapContainer, props.accessToken]);
+  }, [mapContainer, props.accessToken,update]);
 
   useEffect(() => {
     if (state.map && state.view.zoom !== state.map.getZoom()) {
