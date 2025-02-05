@@ -20,7 +20,7 @@ export const Map: React.FC<Props> = (props: Props) => {
     if (!mapContainer.current || !props.accessToken) return;
     const newMap = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: 'mapbox://styles/liu1ze/cm6qaryp300zk01sag01c49b4',
       accessToken: props.accessToken,
     });
 
